@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:54:57 by nazouz            #+#    #+#             */
-/*   Updated: 2024/09/05 19:16:19 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/09/11 12:48:04 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,17 @@ RPN::RPN(const std::string& argument) {
 }
 
 RPN::RPN(const RPN& original) {
-	(void)original;
+	stack = original.stack;
+	notation = original.notation;
+	result = original.result;
 }
 
 RPN& RPN::operator=(const RPN& original) {
-	(void)original;
+	if (this != &original) {
+		stack = original.stack;
+		notation = original.notation;
+		result = original.result;
+	}
 	return *this;
 }
 
@@ -49,8 +55,8 @@ void			RPN::parseNotation() {
 }
 
 void			RPN::calculateOperation(char op) {
-	int		first;
-	int		second;
+	double	first;
+	double	second;
 	
 	if (stack.size() < 2)
 		throw "Error";
@@ -81,9 +87,12 @@ void			RPN::calculateResult() {
 			i++;
 		while (notation[i] && notation[i] != ' ')
 			token += notation[i++];
-		if (token.length() != 1)
+		if (isdigit(token[0]) && token.length() != 1)
 			throw "Error";
-		if (isdigit(token[0]))
+		// else if (token[0] == '-' && token.length() != 2)
+		// 	throw "Error";
+		if ((isdigit(token[0]) && token.length() == 1)
+			|| (token[0] == '-' && isdigit(token[1]) && token.length() == 2))
 			stack.push(std::stoi(token));
 		else if (token == "+" || token == "-" || token == "*" || token == "/")
 			calculateOperation(token[0]);
@@ -92,7 +101,7 @@ void			RPN::calculateResult() {
 	}
 	if (stack.size() != 1)
 		throw "Error";
-	result = stack.top();	
+	result = stack.top();
 }
 
 void			RPN::printResult() {

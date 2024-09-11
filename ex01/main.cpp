@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:49:54 by nazouz            #+#    #+#             */
-/*   Updated: 2024/09/05 18:15:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/09/11 12:53:55 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ int main(int argc, char **argv) {
 	}
 	catch (const char* s) {
 		std::cerr << s << std::endl;
+	} catch (std::exception& e) {
+		std::cerr << "Error: Exception Thrown" << std::endl;
 	}
 
 

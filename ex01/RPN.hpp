@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/05 15:31:50 by nazouz            #+#    #+#             */
-/*   Updated: 2024/09/05 18:14:06 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/09/11 12:33:48 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@
 
 class RPN {
 	private:
-		std::stack<int>		stack;
+		std::stack<double>	stack;
 		std::string			notation;
-		int					result;
+		double				result;
 
 		void				parseNotation();
 		bool				isValidNotation();

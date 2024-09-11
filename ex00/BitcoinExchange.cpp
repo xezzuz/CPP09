@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/04 12:33:31 by nazouz            #+#    #+#             */
-/*   Updated: 2024/09/11 12:01:11 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/09/11 15:27:21 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,16 @@ void			BitcoinExchange::printDataBaseMap() {
 	}
 }
 
+bool			isLeapYear(int year) {
+	if (year % 400 == 0)
+		return true;
+    else if (year % 100 == 0)
+		return false;
+    else if (year % 4 == 0)
+		return true;
+    return false;
+}
+
 void			BitcoinExchange::storeDataBase() {
 	std::string			line;
 	std::string			date;
@@ -73,6 +83,8 @@ void			BitcoinExchange::storeDataBase() {
 		}
 		dataBase[date] = value;
 	}
+	if (datesBase.empty())
+		throw "Database file is not valid.";
 }
 
 void			BitcoinExchange::storeDatesBase() {
@@ -151,10 +163,7 @@ bool			BitcoinExchange::isValidInput(const std::string& date, const double& valu
 
 	// validate date
 	dateFormat[0] = std::stoi(date);
-	if (!(dateFormat[0] % 4) || (!(dateFormat[0] % 100) && !(dateFormat[0] % 400)))
-		datesBase["02"] = 29;
-	else
-		datesBase["02"] = 28;
+	isLeapYear(dateFormat[0]) ? datesBase["02"] = 29 : datesBase["02"] = 28;
 	dateFormat[1] = std::stoi(&date[5]);
 	if (dateFormat[1] < 1 || dateFormat[1] > 12) {
 		std::cout << "Error: bad input => " << date << std::endl;
@@ -174,11 +183,9 @@ void			BitcoinExchange::printResult(const std::string& date, const double& value
 		// lower_bound find key >= keyToFind
 		std::map<std::string, double>::iterator	it = dataBase.lower_bound(date);
 
-		if (it == dataBase.end()) {
-			std::cout << "Error: bad input => " << date << std::endl;
-			return ;
-		}
-		if (it != dataBase.begin() && it->first != date)
+		if (it == dataBase.end())
+			it--;
+		else if (it != dataBase.begin() && it->first != date)
 			it--;
 		std::cout << date << " => " << value << " = " 
 				  << value * it->second << std::endl;
@@ -192,7 +199,7 @@ void			BitcoinExchange::processInput() {
 
 	std::getline(inputFile, line);
 	if (line != "date | value")
-		throw "Error: input file doesn't match the requirements."; // don't accept input
+		throw "Error: input file doesn't match the requirements.";
 	while (!inputFile.eof()) {
 		std::getline(inputFile, line);
 		if (line.empty())
