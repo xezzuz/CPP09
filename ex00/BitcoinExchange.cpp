@@ -6,11 +6,15 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/04 12:33:31 by nazouz            #+#    #+#             */
-/*   Updated: 2024/09/05 13:43:02 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/09/11 12:01:11 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BitcoinExchange.hpp"
+
+BitcoinExchange::BitcoinExchange() {
+	// private constructor
+}
 
 BitcoinExchange::BitcoinExchange(std::string inputName, std::string dataName) {
 	dataFile.open(dataName, std::ios_base::in);
@@ -24,16 +28,21 @@ BitcoinExchange::BitcoinExchange(std::string inputName, std::string dataName) {
 }
 
 BitcoinExchange::BitcoinExchange(const BitcoinExchange& original) {
-	(void)original;
+	dataBase = original.dataBase;
+	datesBase = original.datesBase;
 }
 
 BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& original) {
-	(void)original;
+	if (this != &original) {
+		dataBase = original.dataBase;
+		datesBase = original.datesBase;
+	}
 	return *this;
 }
 
 BitcoinExchange::~BitcoinExchange() {
-
+	inputFile.close();
+	dataFile.close();
 }
 
 void			BitcoinExchange::printDataBaseMap() {
@@ -54,12 +63,12 @@ void			BitcoinExchange::storeDataBase() {
 		throw "Database file is not valid.";
 	while (!dataFile.eof()) {
 		std::getline(dataFile, line);
-		date = line.substr(0, line.find(','));
 		if (line.empty())
 			continue;
+		date = line.substr(0, line.find(','));
 		try {
 			value = std::stod(line.substr(line.find(',') + 1));
-		} catch (std::exception& e) {
+		} catch (const std::exception& e) {
 			throw "Database file is not valid.";
 		}
 		dataBase[date] = value;
@@ -106,6 +115,24 @@ bool			isFormat(const std::string& line) {
 	int		i = 13;
 	if (!isdigit(line[i]) && line[i] != '-')
 		return false;
+	
+	++i;
+	bool		isDouble = false;
+	while (line[i]) {
+		if (!isdigit(line[i]) && line[i] != '.')
+			return false;
+		else if (line[i] == '.') {
+			isDouble = true;
+			i++;
+			break ;
+		}
+		i++;
+	}
+	while (line[i]) {
+		if (!isdigit(line[i]) && isDouble)
+			return false;
+		i++;
+	}
 	return true;
 }
 
@@ -117,7 +144,7 @@ bool			BitcoinExchange::isValidInput(const std::string& date, const double& valu
 	if (value < 0) {
 		std::cout << "Error: not a positive number." << std::endl;
 		return false;
-	} else if (value > 100){
+	} else if (value > 1000){
 		std::cout << "Error: too large a number." << std::endl;
 		return false;
 	}
@@ -146,8 +173,11 @@ void			BitcoinExchange::printResult(const std::string& date, const double& value
 	if (isValidInput(date, value)) {
 		// lower_bound find key >= keyToFind
 		std::map<std::string, double>::iterator	it = dataBase.lower_bound(date);
-		// if (it == dataBase.end())
-		// 	std::cout << "no key " << date << " is found!" << std::endl;
+
+		if (it == dataBase.end()) {
+			std::cout << "Error: bad input => " << date << std::endl;
+			return ;
+		}
 		if (it != dataBase.begin() && it->first != date)
 			it--;
 		std::cout << date << " => " << value << " = " 
@@ -162,15 +192,19 @@ void			BitcoinExchange::processInput() {
 
 	std::getline(inputFile, line);
 	if (line != "date | value")
-		throw std::exception(); // don't accept input
+		throw "Error: input file doesn't match the requirements."; // don't accept input
 	while (!inputFile.eof()) {
 		std::getline(inputFile, line);
 		if (line.empty())
-			throw std::exception(); // don't accept empty lines
-		
+			continue;
 		if (isFormat(line)) {
 			date = line.substr(0, line.find('|') - 1);
-			value = std::stod(line.substr(line.find('|') + 1));
+			try {
+				value = std::stod(line.substr(line.find('|') + 1));
+			} catch (const std::exception& e) {
+				std::cout << "Error: bad input => " << line << std::endl;
+				continue;
+			}
 			printResult(date, value);
 		}
 		else

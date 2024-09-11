@@ -6,7 +6,7 @@
 /*   By: nazouz <nazouz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/04 12:06:54 by nazouz            #+#    #+#             */
-/*   Updated: 2024/09/05 13:25:35 by nazouz           ###   ########.fr       */
+/*   Updated: 2024/09/11 10:30:12 by nazouz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include <unordered_map>
 
 class BitcoinExchange {
 	private:
@@ -32,6 +31,7 @@ class BitcoinExchange {
 		void								storeDatesBase();
 		bool								isValidInput(const std::string& date, const double& value);
 
+		BitcoinExchange();
 	public:
 		BitcoinExchange(std::string inputName, std::string dataName);
 		BitcoinExchange(const BitcoinExchange& original);
